@@ -3,6 +3,13 @@ import { Award, BriefcaseBusiness, GraduationCap, Mail, MapPin, Sparkles } from 
 import { levelValue, type PortfolioState, templateCopy } from "@/lib/portfolio";
 import { cn } from "@/lib/utils";
 
+function toDisplayImageUrl(url?: string) {
+  if (!url) return "";
+  const trimmed = url.trim();
+  const driveMatch = trimmed.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([^/&?]+)/) || trimmed.match(/[?&]id=([^/&?]+)/);
+  return driveMatch?.[1] ? `https://drive.google.com/uc?export=view&id=${driveMatch[1]}` : trimmed;
+}
+
 export function PortfolioPreview({ portfolio, compact = false }: { portfolio: PortfolioState; compact?: boolean }) {
   const p = portfolio.personal;
   const profilePhotoUrl = toDisplayImageUrl(p.photoUrl);

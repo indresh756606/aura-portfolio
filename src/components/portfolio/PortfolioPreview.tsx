@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function PortfolioPreview({ portfolio, compact = false }: { portfolio: PortfolioState; compact?: boolean }) {
   const p = portfolio.personal;
+  const profilePhotoUrl = toDisplayImageUrl(p.photoUrl);
   const visual = {
     developer: "from-primary/20 via-secondary/10 to-accent/20",
     corporate: "from-secondary/20 via-background to-primary/10",
@@ -30,7 +31,7 @@ export function PortfolioPreview({ portfolio, compact = false }: { portfolio: Po
             </div>
           </motion.div>
           <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-[2rem] border border-border/70 bg-background/70 text-5xl font-black text-primary shadow-[var(--shadow-glow)] backdrop-blur md:h-52 md:w-52">
-            {p.photoUrl ? <img src={p.photoUrl} alt={`${p.fullName || "Profile"} portrait`} className="h-full w-full rounded-[2rem] object-cover" loading="lazy" /> : (p.fullName || "PB").split(" ").map((x) => x[0]).join("").slice(0, 2)}
+            {profilePhotoUrl ? <img src={profilePhotoUrl} alt={`${p.fullName || "Profile"} portrait`} className="h-full w-full rounded-[2rem] object-cover" loading="lazy" referrerPolicy="no-referrer" /> : (p.fullName || "PB").split(" ").map((x) => x[0]).join("").slice(0, 2)}
           </div>
         </div>
       </section>
@@ -43,7 +44,7 @@ export function PortfolioPreview({ portfolio, compact = false }: { portfolio: Po
               {(portfolio.projects.length ? portfolio.projects : []).map((project) => (
                 <div key={project.id} className="group rounded-2xl border border-border/70 bg-background/70 p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-premium)]">
                   <div className="mb-4 flex h-28 items-center justify-center overflow-hidden rounded-xl soft-gradient text-sm font-semibold text-primary">
-                    {project.imageUrl ? <img src={project.imageUrl} alt={`${project.title} project`} className="h-full w-full object-cover" loading="lazy" /> : project.client || "Project"}
+                    {toDisplayImageUrl(project.imageUrl) ? <img src={toDisplayImageUrl(project.imageUrl)} alt={`${project.title || "Portfolio"} project`} className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" /> : project.client || "Project"}
                   </div>
                   <h3 className="font-display text-lg font-bold">{project.title || "Project title"}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{project.description || "Project description"}</p>

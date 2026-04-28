@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 function toDisplayImageUrl(url?: string) {
   if (!url) return "";
   const trimmed = url.trim();
-  const driveMatch = trimmed.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([^/&?]+)/) || trimmed.match(/[?&]id=([^/&?]+)/);
-  return driveMatch?.[1] ? `https://drive.google.com/uc?export=view&id=${driveMatch[1]}` : trimmed;
+  const driveMatch = trimmed.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=[^&]+&)?id=|thumbnail\?id=)([^/&?]+)/) || trimmed.match(/[?&]id=([^/&?]+)/);
+  return driveMatch?.[1] ? `https://lh3.googleusercontent.com/d/${encodeURIComponent(driveMatch[1])}=w1600` : trimmed;
 }
 
 export function PortfolioPreview({ portfolio, compact = false }: { portfolio: PortfolioState; compact?: boolean }) {

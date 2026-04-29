@@ -235,7 +235,7 @@ function buildDeedyResumePdf(doc: jsPDF, portfolio: PortfolioState) {
   const accent = () => doc.setTextColor(40, 92, 190);
   const line = (x1: number, y: number, x2: number) => { doc.setDrawColor(214, 219, 229); doc.line(x1, y, x2, y); };
   const fit = (content: string, width: number) => doc.splitTextToSize(content, width) as string[];
-  const section = (title: string, x: number, y: number, width: number) => { accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.text(title.toUpperCase(), x, y); line(x, y + 5, x + width, y + 5); return y + 20; };
+  const section = (title: string, x: number, y: number, width: number) => { accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.text(title.toUpperCase(), x, y); line(x, y + 5, x + width); return y + 20; };
   const paragraph = (content: string, x: number, y: number, width: number, size = 9.2, leading = 12) => { if (!content) return y; muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(size); const lines = fit(content, width); doc.text(lines, x, y); return y + lines.length * leading; };
   const item = (title: string, meta: string, body: string, x: number, y: number, width: number) => { if (!title && !body) return y; ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.text(fit(title || "Untitled", width), x, y); let nextY = y + 14; if (meta) { accent(); doc.setFontSize(8.5); doc.text(fit(meta.toUpperCase(), width), x, nextY); nextY += 12; } return paragraph(body, x, nextY, width, 9, 11) + 8; };
 

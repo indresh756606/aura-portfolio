@@ -33,41 +33,52 @@ export function LandingPage() {
   const mouseX = useMotionValue(50);
   const mouseY = useMotionValue(50);
   const spotlight = useMotionTemplate`radial-gradient(circle at ${mouseX}% ${mouseY}%, hsl(var(--secondary) / 0.24), transparent 30%)`;
-  const features = ["Secure Cloud accounts", "No-code portfolio editor", "Dynamic templates", "Resume PDF export", "Analytics-ready sharing", "AI-style copy tools"];
+  const features = [
+    { icon: Shield, title: "Secure Cloud accounts", copy: "Keep every portfolio draft safely synced behind your login." },
+    { icon: LayoutDashboard, title: "Guided dashboard", copy: "Edit profile, projects, skills, certificates, and links without chaos." },
+    { icon: FileDown, title: "Clean resume export", copy: "Download a polished resume PDF directly from your portfolio data." },
+    { icon: Share2, title: "Share-ready links", copy: "Publish a professional portfolio URL whenever you are ready." },
+    { icon: Palette, title: "Premium templates", copy: "Switch between tones built for developers, creatives, and teams." },
+    { icon: Wand2, title: "Smart copy polish", copy: "Generate a sharper bio from your actual skills and project history." },
+  ];
 
   return (
     <div className="premium-scroll min-h-screen bg-background text-foreground">
       <motion.section className="hero-canvas relative overflow-hidden" onPointerMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); mouseX.set(((e.clientX - r.left) / r.width) * 100); mouseY.set(((e.clientY - r.top) / r.height) * 100); }}>
         <motion.div className="pointer-events-none absolute inset-0" style={{ background: spotlight }} />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
         <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-5 py-5 text-primary-foreground sm:px-8">
-          <Link to="/" className="flex items-center gap-3 font-display text-lg font-extrabold"><span className="flex h-10 w-10 items-center justify-center rounded-2xl gradient-button"><Sparkles className="h-5 w-5" /></span>Portfolia</Link>
-          <div className="hidden items-center gap-7 text-sm font-semibold text-primary-foreground/80 md:flex"><a href="#features">Features</a><a href="#templates">Templates</a><a href="#testimonials">Stories</a></div>
+          <Link to="/" className="flex items-center gap-3 font-display text-lg font-extrabold"><span className="flex h-10 w-10 items-center justify-center rounded-xl gradient-button"><Sparkles className="h-5 w-5" /></span>Portfolia</Link>
+          <div className="hidden items-center gap-7 text-sm font-semibold text-primary-foreground/80 md:flex"><a className="transition hover:text-primary-foreground" href="#features">Features</a><a className="transition hover:text-primary-foreground" href="#templates">Templates</a><a className="transition hover:text-primary-foreground" href="#testimonials">Stories</a></div>
           <div className="flex gap-2"><Button asChild variant="glass"><Link to="/login">Login</Link></Button><Button asChild variant="premium"><Link to="/signup">Create Account</Link></Button></div>
         </nav>
-        <div className="relative mx-auto grid min-h-[calc(100vh-84px)] max-w-7xl items-center gap-10 px-5 pb-20 pt-12 sm:px-8 lg:grid-cols-[1.02fr_0.98fr]">
+        <div className="relative mx-auto grid min-h-[calc(100vh-84px)] max-w-7xl items-center gap-12 px-5 pb-24 pt-10 sm:px-8 lg:grid-cols-[0.94fr_1.06fr]">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="text-primary-foreground">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary-foreground/15 bg-primary-foreground/10 px-4 py-2 text-sm font-semibold backdrop-blur"><Shield className="h-4 w-4" />Secure portfolio builder for modern professionals</div>
-            <h1 className="max-w-4xl font-display text-5xl font-extrabold leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">Build Your Professional Portfolio in Minutes</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-primary-foreground/75">Create an account, add your career story once, and generate a beautiful responsive portfolio with premium templates, analytics, sharing, and resume export.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg" variant="premium"><Link to="/signup">Create Account <ArrowRight className="h-4 w-4" /></Link></Button><Button asChild size="lg" variant="glass"><Link to="/login">Login</Link></Button></div>
-            <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 text-primary-foreground/80"><Metric value="4" label="templates" /><Metric value="12+" label="sections" /><Metric value="PDF" label="export" /></div>
+            <h1 className="max-w-4xl font-display text-5xl font-extrabold leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">Your portfolio, resume, and career story — beautifully connected.</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-primary-foreground/76">Create a premium portfolio from one focused dashboard, publish it instantly, and download a clear resume PDF whenever opportunity arrives.</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg" variant="premium"><Link to="/signup">Start Building <ArrowRight className="h-4 w-4" /></Link></Button><Button asChild size="lg" variant="glass"><Link to="/login">Open Dashboard</Link></Button></div>
+            <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 text-primary-foreground/80"><Metric value="4" label="templates" /><Metric value="12+" label="sections" /><Metric value="PDF" label="resume" /></div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.1 }} className="glass-panel animate-float rounded-[2rem] p-4">
-            <PortfolioPreview portfolio={starterPortfolio} compact />
+          <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.1 }} className="relative">
+            <div className="glass-panel animate-float rounded-3xl p-4">
+              <PortfolioPreview portfolio={starterPortfolio} compact />
+            </div>
+            <div className="glass-panel absolute -bottom-6 left-5 hidden max-w-xs rounded-2xl p-4 text-primary-foreground md:block"><p className="text-xs font-semibold uppercase tracking-normal text-primary-foreground/60">Live portfolio preview</p><p className="mt-1 font-display text-lg font-bold">Looks polished before you publish.</p></div>
           </motion.div>
         </div>
       </motion.section>
 
       <SectionBlock id="features" eyebrow="Features" title="Everything your personal brand needs, in one premium workspace.">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{features.map((feature, i) => <motion.div key={feature} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.04 }} className="glass-panel rounded-3xl p-6"><Check className="mb-5 h-6 w-6 text-primary" /><h3 className="font-display text-lg font-bold">{feature}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">Polished interactions, clean data flows, and responsive layouts tuned for mobile, tablet, and desktop.</p></motion.div>)}</div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{features.map((feature, i) => { const Icon = feature.icon; return <motion.div key={feature.title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.04 }} className="group border border-border bg-card p-6 shadow-[var(--shadow-premium)] transition duration-300 hover:-translate-y-1 hover:border-primary/35"><span className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl soft-gradient text-primary transition group-hover:scale-105"><Icon className="h-6 w-6" /></span><h3 className="font-display text-lg font-bold">{feature.title}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{feature.copy}</p></motion.div>; })}</div>
       </SectionBlock>
 
       <SectionBlock eyebrow="How it works" title="From signup to live portfolio in three focused steps.">
-        <div className="grid gap-5 md:grid-cols-3">{["Create a secure account", "Fill guided dashboard sections", "Publish and share your portfolio"].map((step, i) => <div key={step} className="rounded-3xl border border-border bg-card p-7 shadow-[var(--shadow-premium)]"><span className="text-4xl font-black text-primary/25">0{i + 1}</span><h3 className="mt-5 font-display text-xl font-bold">{step}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">Designed to remove friction while keeping your content structured and reusable.</p></div>)}</div>
+        <div className="grid gap-5 md:grid-cols-3">{["Create a secure account", "Fill guided dashboard sections", "Publish and share your portfolio"].map((step, i) => <div key={step} className="border border-border bg-card p-7 shadow-[var(--shadow-premium)]"><span className="text-4xl font-black text-primary/25">0{i + 1}</span><h3 className="mt-5 font-display text-xl font-bold">{step}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">Designed to remove friction while keeping your content structured and reusable.</p></div>)}</div>
       </SectionBlock>
 
       <SectionBlock id="templates" eyebrow="Templates Preview" title="Choose the tone that matches your profession.">
-        <div className="grid gap-4 md:grid-cols-4">{Object.entries(templateCopy).map(([key, t]) => <div key={key} className="group rounded-3xl border border-border bg-card p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]"><div className="mb-5 h-36 rounded-2xl soft-gradient p-4"><div className="h-3 w-20 rounded-full bg-primary/50" /><div className="mt-8 h-4 w-28 rounded-full bg-foreground/15" /><div className="mt-3 h-4 w-20 rounded-full bg-foreground/10" /></div><h3 className="font-display font-bold">{t.name}</h3><p className="mt-2 text-sm text-muted-foreground">{t.tone}</p></div>)}</div>
+        <div className="grid gap-4 md:grid-cols-4">{Object.entries(templateCopy).map(([key, t]) => <div key={key} className="group border border-border bg-card p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]"><div className="mb-5 h-36 soft-gradient p-4"><div className="h-3 w-20 rounded-full bg-primary/50" /><div className="mt-8 h-4 w-28 rounded-full bg-foreground/15" /><div className="mt-3 h-4 w-20 rounded-full bg-foreground/10" /></div><h3 className="font-display font-bold">{t.name}</h3><p className="mt-2 text-sm text-muted-foreground">{t.tone}</p></div>)}</div>
       </SectionBlock>
 
       <SectionBlock id="testimonials" eyebrow="Testimonials" title="Built for people who want credibility without the design grind.">

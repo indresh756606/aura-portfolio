@@ -226,44 +226,55 @@ function Metric({ value, label }: { value: string; label: string }) { return <di
 function SectionBlock({ id, eyebrow, title, children }: { id?: string; eyebrow: string; title: string; children: React.ReactNode }) { return <section id={id} className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><p className="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-primary">{eyebrow}</p><h2 className="mb-10 max-w-3xl font-display text-3xl font-extrabold sm:text-5xl">{title}</h2>{children}</section>; }
 
 function buildDeedyResumePdf(doc: jsPDF, portfolio: PortfolioState) {
-  const page = { width: 612, height: 792, margin: 42 };
-  const left = { x: page.margin, y: 118, width: 170 };
-  const right = { x: 242, y: 118, width: 328 };
+  const page = { width: 612, height: 792, margin: 44, bottom: 748 };
+  const contentWidth = page.width - page.margin * 2;
   const text = (value?: string | null) => (value || "").trim();
   const muted = () => doc.setTextColor(92, 99, 112);
   const ink = () => doc.setTextColor(24, 29, 38);
   const accent = () => doc.setTextColor(40, 92, 190);
   const line = (x1: number, y: number, x2: number) => { doc.setDrawColor(214, 219, 229); doc.line(x1, y, x2, y); };
   const fit = (content: string, width: number) => doc.splitTextToSize(content, width) as string[];
-  const section = (title: string, x: number, y: number, width: number) => { accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.text(title.toUpperCase(), x, y); line(x, y + 5, x + width); return y + 20; };
-  const paragraph = (content: string, x: number, y: number, width: number, size = 9.2, leading = 12) => { if (!content) return y; muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(size); const lines = fit(content, width); doc.text(lines, x, y); return y + lines.length * leading; };
-  const item = (title: string, meta: string, body: string, x: number, y: number, width: number) => { if (!title && !body) return y; ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.text(fit(title || "Untitled", width), x, y); let nextY = y + 14; if (meta) { accent(); doc.setFontSize(8.5); doc.text(fit(meta.toUpperCase(), width), x, nextY); nextY += 12; } return paragraph(body, x, nextY, width, 9, 11) + 8; };
+  const addPageIfNeeded = (y: number, needed: number) => { if (y + needed <= page.bottom) return y; doc.addPage(); drawHeader(false); return 112; };
+  const drawHeader = (firstPage = true) => {
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, page.width, page.height, "F");
+    ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(firstPage ? 25 : 16); doc.text(text(portfolio.personal.fullName) || "Your Name", page.width / 2, firstPage ? 50 : 44, { align: "center" });
+    muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(firstPage ? 10 : 8.5); doc.text(text(portfolio.personal.title) || "Professional Portfolio", page.width / 2, firstPage ? 68 : 59, { align: "center" });
+    line(page.margin, firstPage ? 94 : 78, page.width - page.margin);
+  };
+  const section = (title: string, y: number) => { y = addPageIfNeeded(y, 30); accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.text(title.toUpperCase(), page.margin, y); line(page.margin, y + 6, page.width - page.margin); return y + 22; };
+  const paragraph = (content: string, y: number, size = 9.3, leading = 12) => { if (!content) return y; const lines = fit(content, contentWidth); y = addPageIfNeeded(y, lines.length * leading + 6); muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(size); doc.text(lines, page.margin, y); return y + lines.length * leading + 6; };
+  const item = (title: string, meta: string, body: string, y: number) => {
+    if (!title && !body && !meta) return y;
+    const titleLines = fit(title || "Untitled", contentWidth);
+    const metaLines = meta ? fit(meta.toUpperCase(), contentWidth) : [];
+    const bodyLines = body ? fit(body, contentWidth) : [];
+    y = addPageIfNeeded(y, titleLines.length * 13 + metaLines.length * 10 + bodyLines.length * 11 + 14);
+    ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.text(titleLines, page.margin, y); y += titleLines.length * 13;
+    if (metaLines.length) { accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.text(metaLines, page.margin, y); y += metaLines.length * 10 + 2; }
+    if (bodyLines.length) { muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.text(bodyLines, page.margin, y); y += bodyLines.length * 11; }
+    return y + 10;
+  };
 
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, page.width, page.height, "F");
-  ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(27); doc.text(text(portfolio.personal.fullName) || "Your Name", page.width / 2, 54, { align: "center" });
-  muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); doc.text(text(portfolio.personal.title) || "Professional Portfolio", page.width / 2, 73, { align: "center" });
+  drawHeader();
   const contact = [portfolio.personal.email, portfolio.personal.phone, [portfolio.personal.city, portfolio.personal.country].filter(Boolean).join(", "), portfolio.social_links.linkedin, portfolio.social_links.github, portfolio.social_links.portfolio].map(text).filter(Boolean).join("  |  ");
-  doc.setFontSize(8.5); doc.text(fit(contact, 520), page.width / 2, 91, { align: "center" });
-  line(page.margin, 104, page.width - page.margin);
+  muted(); doc.setFontSize(8.4); doc.text(fit(contact, 520), page.width / 2, 84, { align: "center" });
 
-  let ly = section("Contact", left.x, left.y, left.width);
-  ly = paragraph([portfolio.personal.email, portfolio.personal.phone, [portfolio.personal.city, portfolio.personal.country].filter(Boolean).join(", "), portfolio.social_links.linkedin, portfolio.social_links.github].map(text).filter(Boolean).join("\n"), left.x, ly, left.width, 8.5, 11) + 10;
-  ly = section("Education", left.x, ly, left.width);
-  portfolio.education.slice(0, 3).forEach((e) => { ly = item(e.course, [e.university, e.trade, [e.startYear, e.endYear].filter(Boolean).join(" - "), e.grade].filter(Boolean).join(" | "), "", left.x, ly, left.width); });
-  ly = section("Skills", left.x, ly, left.width);
-  Object.entries(portfolio.skills.reduce<Record<string, string[]>>((groups, skill) => ({ ...groups, [skill.category]: [...(groups[skill.category] || []), skill.name] }), {})).forEach(([category, skills]) => { ly = item(category, "", skills.filter(Boolean).join(", "), left.x, ly, left.width); });
-  ly = section("Certificates", left.x, ly, left.width);
-  portfolio.certificates.slice(0, 4).forEach((c) => { ly = item(c.course, c.institute, c.technologies, left.x, ly, left.width); });
-
-  let ry = section("Profile", right.x, right.y, right.width);
-  ry = paragraph(text(portfolio.generated_bio) || text(portfolio.personal.about), right.x, ry, right.width, 9.3, 12) + 12;
-  ry = section("Experience", right.x, ry, right.width);
-  portfolio.experiences.slice(0, 4).forEach((e) => { ry = item(e.designation, [e.company, e.location, [e.startDate, e.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), e.responsibilities, right.x, ry, right.width); });
-  ry = section("Projects", right.x, ry, right.width);
-  portfolio.projects.slice(0, 5).forEach((p) => { ry = item(p.title, [p.client, p.technologies, [p.startDate, p.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), p.description, right.x, ry, right.width); });
+  let y = 122;
+  y = section("Profile", y);
+  y = paragraph(text(portfolio.generated_bio) || text(portfolio.personal.about), y) + 4;
+  y = section("Experience", y);
+  portfolio.experiences.forEach((e) => { y = item(e.designation, [e.company, e.location, [e.startDate, e.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), e.responsibilities, y); });
+  y = section("Projects", y);
+  portfolio.projects.forEach((p) => { y = item(p.title, [p.client, p.technologies, [p.startDate, p.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), p.description, y); });
+  y = section("Skills", y);
+  Object.entries(portfolio.skills.reduce<Record<string, string[]>>((groups, skill) => ({ ...groups, [skill.category]: [...(groups[skill.category] || []), skill.name] }), {})).forEach(([category, skills]) => { y = item(category, "", skills.filter(Boolean).join(", "), y); });
+  y = section("Education", y);
+  portfolio.education.forEach((e) => { y = item(e.course, [e.university, e.trade, [e.startYear, e.endYear].filter(Boolean).join(" - "), e.grade].filter(Boolean).join(" | "), "", y); });
+  y = section("Certificates", y);
+  portfolio.certificates.forEach((c) => { y = item(c.course, [c.institute, [c.startDate, c.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), c.technologies, y); });
   const extra = [portfolio.additional.languages && `Languages: ${portfolio.additional.languages}`, portfolio.additional.interests && `Interests: ${portfolio.additional.interests}`].filter(Boolean).join("\n");
-  if (extra) { ry = section("Additional", right.x, ry, right.width); paragraph(extra, right.x, ry, right.width, 8.8, 11); }
+  if (extra) { y = section("Additional", y); paragraph(extra, y, 8.8, 11); }
 }
 function NotAvailable() { return <div className="flex min-h-screen items-center justify-center bg-background p-6 text-center"><div><h1 className="font-display text-4xl font-extrabold">Portfolio unavailable</h1><p className="mt-3 text-muted-foreground">This portfolio is private or the link is incorrect.</p><Button asChild className="mt-6" variant="premium"><Link to="/">Go home</Link></Button></div></div>; }
 

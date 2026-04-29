@@ -52,16 +52,19 @@ export function LandingPage() {
           <div className="hidden items-center gap-7 text-sm font-semibold text-primary-foreground/80 md:flex"><a className="transition hover:text-primary-foreground" href="#features">Features</a><a className="transition hover:text-primary-foreground" href="#templates">Templates</a><a className="transition hover:text-primary-foreground" href="#testimonials">Stories</a></div>
           <div className="flex gap-2"><Button asChild variant="glass"><Link to="/login">Login</Link></Button><Button asChild variant="premium"><Link to="/signup">Create Account</Link></Button></div>
         </nav>
-        <div className="relative mx-auto grid min-h-[calc(100vh-84px)] max-w-7xl items-center gap-12 px-5 pb-24 pt-10 sm:px-8 lg:grid-cols-[0.94fr_1.06fr]">
+        <div className="relative mx-auto grid min-h-[620px] max-w-7xl items-start gap-8 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:pt-16">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="text-primary-foreground">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary-foreground/15 bg-primary-foreground/10 px-4 py-2 text-sm font-semibold backdrop-blur"><Shield className="h-4 w-4" />Secure portfolio builder for modern professionals</div>
-            <h1 className="max-w-4xl font-display text-5xl font-extrabold leading-[1.02] tracking-normal sm:text-6xl lg:text-7xl">Your portfolio, resume, and career story — beautifully connected.</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-primary-foreground/76">Create a premium portfolio from one focused dashboard, publish it instantly, and download a clear resume PDF whenever opportunity arrives.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg" variant="premium"><Link to="/signup">Start Building <ArrowRight className="h-4 w-4" /></Link></Button><Button asChild size="lg" variant="glass"><Link to="/login">Open Dashboard</Link></Button></div>
-            <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 text-primary-foreground/80"><Metric value="4" label="templates" /><Metric value="12+" label="sections" /><Metric value="PDF" label="resume" /></div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-foreground/15 bg-primary-foreground/10 px-4 py-2 text-sm font-semibold backdrop-blur"><Shield className="h-4 w-4" />Secure portfolio builder for modern professionals</div>
+            <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.04] tracking-normal sm:text-5xl lg:text-6xl">Your portfolio, resume, and career story — beautifully connected.</h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-primary-foreground/76 sm:text-lg">Create a premium portfolio from one focused dashboard, publish it instantly, and download a clear resume PDF whenever opportunity arrives.</p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg" variant="premium"><Link to="/signup">Start Building <ArrowRight className="h-4 w-4" /></Link></Button><Button asChild size="lg" variant="glass"><Link to="/login">Open Dashboard</Link></Button></div>
+            <div className="mt-8 grid max-w-xl grid-cols-3 gap-3 text-primary-foreground/80"><Metric value="4" label="templates" /><Metric value="12+" label="sections" /><Metric value="PDF" label="resume" /></div>
+            <div className="mt-6 grid max-w-xl gap-3 sm:grid-cols-2">
+              {["Portfolio builder", "Resume PDF", "Public share link", "Career dashboard"].map((item) => <div key={item} className="flex items-center gap-2 border border-primary-foreground/12 bg-primary-foreground/10 px-4 py-3 text-sm font-semibold backdrop-blur"><Check className="h-4 w-4 text-secondary" />{item}</div>)}
+            </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.1 }} className="relative">
-            <div className="glass-panel animate-float rounded-3xl p-4">
+            <div className="glass-panel animate-float rounded-3xl p-3 lg:p-4">
               <PortfolioPreview portfolio={starterPortfolio} compact />
             </div>
             <div className="glass-panel absolute -bottom-6 left-5 hidden max-w-xs rounded-2xl p-4 text-primary-foreground md:block"><p className="text-xs font-semibold uppercase tracking-normal text-primary-foreground/60">Live portfolio preview</p><p className="mt-1 font-display text-lg font-bold">Looks polished before you publish.</p></div>

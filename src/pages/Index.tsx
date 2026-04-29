@@ -234,13 +234,13 @@ function buildDeedyResumePdf(doc: jsPDF, portfolio: PortfolioState) {
   const accent = () => doc.setTextColor(40, 92, 190);
   const line = (x1: number, y: number, x2: number) => { doc.setDrawColor(214, 219, 229); doc.line(x1, y, x2, y); };
   const fit = (content: string, width: number) => doc.splitTextToSize(content, width) as string[];
-  const addPageIfNeeded = (y: number, needed: number) => { if (y + needed <= page.bottom) return y; doc.addPage(); drawHeader(false); return 112; };
-  const drawHeader = (firstPage = true) => {
+  const addPageIfNeeded = (y: number, needed: number) => { if (y + needed <= page.bottom) return y; doc.addPage(); doc.setFillColor(255, 255, 255); doc.rect(0, 0, page.width, page.height, "F"); return page.margin; };
+  const drawHeader = () => {
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, page.width, page.height, "F");
-    ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(firstPage ? 25 : 16); doc.text(text(portfolio.personal.fullName) || "Your Name", page.width / 2, firstPage ? 50 : 44, { align: "center" });
-    muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(firstPage ? 10 : 8.5); doc.text(text(portfolio.personal.title) || "Professional Portfolio", page.width / 2, firstPage ? 68 : 59, { align: "center" });
-    line(page.margin, firstPage ? 106 : 78, page.width - page.margin);
+    ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(25); doc.text(text(portfolio.personal.fullName) || "Your Name", page.width / 2, 50, { align: "center" });
+    muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.text(text(portfolio.personal.title) || "Professional Portfolio", page.width / 2, 68, { align: "center" });
+    line(page.margin, 106, page.width - page.margin);
   };
   const section = (title: string, y: number) => { y = addPageIfNeeded(y, 30); accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.text(title.toUpperCase(), page.margin, y); line(page.margin, y + 6, page.width - page.margin); return y + 22; };
   const paragraph = (content: string, y: number, size = 9.3, leading = 12) => { if (!content) return y; const lines = fit(content, contentWidth); y = addPageIfNeeded(y, lines.length * leading + 6); muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(size); doc.text(lines, page.margin, y); return y + lines.length * leading + 6; };

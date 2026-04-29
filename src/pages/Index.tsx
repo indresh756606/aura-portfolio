@@ -224,6 +224,47 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function TextField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) { return <Field label={label}><Input value={value} onChange={(e) => onChange(e.target.value)} /></Field>; }
 function Metric({ value, label }: { value: string; label: string }) { return <div className="rounded-2xl border border-border/70 bg-background/20 p-4"><div className="font-display text-2xl font-extrabold">{value}</div><div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">{label}</div></div>; }
 function SectionBlock({ id, eyebrow, title, children }: { id?: string; eyebrow: string; title: string; children: React.ReactNode }) { return <section id={id} className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><p className="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-primary">{eyebrow}</p><h2 className="mb-10 max-w-3xl font-display text-3xl font-extrabold sm:text-5xl">{title}</h2>{children}</section>; }
+
+function buildDeedyResumePdf(doc: jsPDF, portfolio: PortfolioState) {
+  const page = { width: 612, height: 792, margin: 42 };
+  const left = { x: page.margin, y: 118, width: 170 };
+  const right = { x: 242, y: 118, width: 328 };
+  const text = (value?: string | null) => (value || "").trim();
+  const muted = () => doc.setTextColor(92, 99, 112);
+  const ink = () => doc.setTextColor(24, 29, 38);
+  const accent = () => doc.setTextColor(40, 92, 190);
+  const line = (x1: number, y: number, x2: number) => { doc.setDrawColor(214, 219, 229); doc.line(x1, y, x2, y); };
+  const fit = (content: string, width: number) => doc.splitTextToSize(content, width) as string[];
+  const section = (title: string, x: number, y: number, width: number) => { accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.text(title.toUpperCase(), x, y); line(x, y + 5, x + width, y + 5); return y + 20; };
+  const paragraph = (content: string, x: number, y: number, width: number, size = 9.2, leading = 12) => { if (!content) return y; muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(size); const lines = fit(content, width); doc.text(lines, x, y); return y + lines.length * leading; };
+  const item = (title: string, meta: string, body: string, x: number, y: number, width: number) => { if (!title && !body) return y; ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.text(fit(title || "Untitled", width), x, y); let nextY = y + 14; if (meta) { accent(); doc.setFontSize(8.5); doc.text(fit(meta.toUpperCase(), width), x, nextY); nextY += 12; } return paragraph(body, x, nextY, width, 9, 11) + 8; };
+
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, page.width, page.height, "F");
+  ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(27); doc.text(text(portfolio.personal.fullName) || "Your Name", page.width / 2, 54, { align: "center" });
+  muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); doc.text(text(portfolio.personal.title) || "Professional Portfolio", page.width / 2, 73, { align: "center" });
+  const contact = [portfolio.personal.email, portfolio.personal.phone, [portfolio.personal.city, portfolio.personal.country].filter(Boolean).join(", "), portfolio.social_links.linkedin, portfolio.social_links.github, portfolio.social_links.portfolio].map(text).filter(Boolean).join("  |  ");
+  doc.setFontSize(8.5); doc.text(fit(contact, 520), page.width / 2, 91, { align: "center" });
+  line(page.margin, 104, page.width - page.margin);
+
+  let ly = section("Contact", left.x, left.y, left.width);
+  ly = paragraph([portfolio.personal.email, portfolio.personal.phone, [portfolio.personal.city, portfolio.personal.country].filter(Boolean).join(", "), portfolio.social_links.linkedin, portfolio.social_links.github].map(text).filter(Boolean).join("\n"), left.x, ly, left.width, 8.5, 11) + 10;
+  ly = section("Education", left.x, ly, left.width);
+  portfolio.education.slice(0, 3).forEach((e) => { ly = item(e.course, [e.university, e.trade, [e.startYear, e.endYear].filter(Boolean).join(" - "), e.grade].filter(Boolean).join(" | "), "", left.x, ly, left.width); });
+  ly = section("Skills", left.x, ly, left.width);
+  Object.entries(portfolio.skills.reduce<Record<string, string[]>>((groups, skill) => ({ ...groups, [skill.category]: [...(groups[skill.category] || []), skill.name] }), {})).forEach(([category, skills]) => { ly = item(category, "", skills.filter(Boolean).join(", "), left.x, ly, left.width); });
+  ly = section("Certificates", left.x, ly, left.width);
+  portfolio.certificates.slice(0, 4).forEach((c) => { ly = item(c.course, c.institute, c.technologies, left.x, ly, left.width); });
+
+  let ry = section("Profile", right.x, right.y, right.width);
+  ry = paragraph(text(portfolio.generated_bio) || text(portfolio.personal.about), right.x, ry, right.width, 9.3, 12) + 12;
+  ry = section("Experience", right.x, ry, right.width);
+  portfolio.experiences.slice(0, 4).forEach((e) => { ry = item(e.designation, [e.company, e.location, [e.startDate, e.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), e.responsibilities, right.x, ry, right.width); });
+  ry = section("Projects", right.x, ry, right.width);
+  portfolio.projects.slice(0, 5).forEach((p) => { ry = item(p.title, [p.client, p.technologies, [p.startDate, p.endDate].filter(Boolean).join(" - ")].filter(Boolean).join(" | "), p.description, right.x, ry, right.width); });
+  const extra = [portfolio.additional.languages && `Languages: ${portfolio.additional.languages}`, portfolio.additional.interests && `Interests: ${portfolio.additional.interests}`].filter(Boolean).join("\n");
+  if (extra) { ry = section("Additional", right.x, ry, right.width); paragraph(extra, right.x, ry, right.width, 8.8, 11); }
+}
 function NotAvailable() { return <div className="flex min-h-screen items-center justify-center bg-background p-6 text-center"><div><h1 className="font-display text-4xl font-extrabold">Portfolio unavailable</h1><p className="mt-3 text-muted-foreground">This portfolio is private or the link is incorrect.</p><Button asChild className="mt-6" variant="premium"><Link to="/">Go home</Link></Button></div></div>; }
 
 function fromRow(row: any): PortfolioState { return { id: row.id, slug: row.slug, is_published: row.is_published, template: (row.template || "developer") as Template, theme_mode: row.theme_mode || "dark", personal: { ...defaultPortfolio.personal, ...safeJson(row.personal, {}) }, projects: safeJson(row.projects, []), experiences: safeJson(row.experiences, []), skills: safeJson(row.skills, []), certificates: safeJson(row.certificates, []), education: safeJson(row.education, []), additional: { ...defaultPortfolio.additional, ...safeJson(row.additional, {}) }, social_links: { ...defaultPortfolio.social_links, ...safeJson(row.social_links, {}) }, generated_bio: row.generated_bio, analytics: safeJson(row.analytics, { views: 0, shares: 0 }) }; }

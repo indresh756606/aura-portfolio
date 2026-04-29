@@ -240,7 +240,7 @@ function buildDeedyResumePdf(doc: jsPDF, portfolio: PortfolioState) {
     doc.rect(0, 0, page.width, page.height, "F");
     ink(); doc.setFont("helvetica", "bold"); doc.setFontSize(firstPage ? 25 : 16); doc.text(text(portfolio.personal.fullName) || "Your Name", page.width / 2, firstPage ? 50 : 44, { align: "center" });
     muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(firstPage ? 10 : 8.5); doc.text(text(portfolio.personal.title) || "Professional Portfolio", page.width / 2, firstPage ? 68 : 59, { align: "center" });
-    line(page.margin, firstPage ? 94 : 78, page.width - page.margin);
+    line(page.margin, firstPage ? 106 : 78, page.width - page.margin);
   };
   const section = (title: string, y: number) => { y = addPageIfNeeded(y, 30); accent(); doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.text(title.toUpperCase(), page.margin, y); line(page.margin, y + 6, page.width - page.margin); return y + 22; };
   const paragraph = (content: string, y: number, size = 9.3, leading = 12) => { if (!content) return y; const lines = fit(content, contentWidth); y = addPageIfNeeded(y, lines.length * leading + 6); muted(); doc.setFont("helvetica", "normal"); doc.setFontSize(size); doc.text(lines, page.margin, y); return y + lines.length * leading + 6; };
@@ -260,7 +260,7 @@ function buildDeedyResumePdf(doc: jsPDF, portfolio: PortfolioState) {
   const contact = [portfolio.personal.email, portfolio.personal.phone, [portfolio.personal.city, portfolio.personal.country].filter(Boolean).join(", "), portfolio.social_links.linkedin, portfolio.social_links.github, portfolio.social_links.portfolio].map(text).filter(Boolean).join("  |  ");
   muted(); doc.setFontSize(8.4); doc.text(fit(contact, 520), page.width / 2, 84, { align: "center" });
 
-  let y = 122;
+  let y = 132;
   y = section("Profile", y);
   y = paragraph(text(portfolio.generated_bio) || text(portfolio.personal.about), y) + 4;
   y = section("Experience", y);

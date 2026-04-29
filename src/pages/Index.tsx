@@ -151,7 +151,13 @@ export function DashboardPage() {
   const signOut = async () => { await supabase.auth.signOut(); toast.success("Logged out"); navigate("/"); };
   const publish = async () => { const next = { ...portfolio, is_published: !portfolio.is_published }; setPortfolio(next); await supabase.from("portfolios").update({ is_published: next.is_published }).eq("user_id", user.id); toast.success(next.is_published ? "Portfolio published" : "Portfolio unpublished"); };
   const generateBio = () => { const bio = `${portfolio.personal.title || "Professional"} ${portfolio.personal.fullName ? portfolio.personal.fullName : ""} with strengths in ${portfolio.skills.slice(0, 3).map((s) => s.name).join(", ") || "strategy, delivery, and collaboration"}. Known for turning complex ideas into polished, measurable work across ${portfolio.projects.length || "multiple"} standout projects.`; setPortfolio({ ...portfolio, generated_bio: bio }); toast.success("Bio improved with AI-style polish."); };
-  const downloadPdf = () => { const doc = new jsPDF(); doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.text(portfolio.personal.fullName || "Portfolio", 20, 25); doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text(portfolio.personal.title || "Professional Portfolio", 20, 35); doc.text((portfolio.generated_bio || portfolio.personal.about || "").slice(0, 220), 20, 48, { maxWidth: 170 }); doc.text("Projects", 20, 78); portfolio.projects.slice(0, 5).forEach((p, i) => doc.text(`• ${p.title} — ${p.technologies}`, 24, 90 + i * 10)); doc.save(`${portfolio.personal.fullName || "portfolio"}-resume.pdf`); toast.success("Resume PDF downloaded."); };
+  const downloadPdf = () => {
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+    buildDeedyResumePdf(doc, portfolio);
+    const fileName = `${(portfolio.personal.fullName || "portfolio").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "portfolio"}-deedy-resume.pdf`;
+    doc.save(fileName);
+    toast.success("Deedy-style resume PDF downloaded.");
+  };
   const share = async () => { const url = `${window.location.origin}/p/${portfolio.slug || user.id.replace(/-/g, "").slice(0, 12)}`; await navigator.clipboard.writeText(url); toast.success("Share link copied."); };
 
   return <DashboardShell active={active} setActive={setActive} mobileMenu={mobileMenu} setMobileMenu={setMobileMenu} signOut={signOut}>
